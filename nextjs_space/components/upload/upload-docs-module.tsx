@@ -19,6 +19,7 @@ export default function UploadDocsModule() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ inserted: number; updated: number; removed: number; total: number } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [uploadedDocs, setUploadedDocs] = useState<Array<{supplierName: string; fileName: string; date: Date}>>([]);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -124,6 +125,8 @@ export default function UploadDocsModule() {
         total: data?.total ?? 0,
       });
       setUploadState('success');
+      const uploadedSupplierName = suppliers.find(s => String(s.id) === String(selectedSupplierId))?.name ?? 'Unknown Supplier';
+      setUploadedDocs(prev => [...prev, { supplierName: uploadedSupplierName, fileName: file?.name ?? '', date: new Date() }]);
       toast.success(`Price sheet saved — ${data?.total ?? 0} items imported`);
 
       setTimeout(() => {
@@ -257,7 +260,7 @@ export default function UploadDocsModule() {
               disabled={!file || !selectedSupplierId}
               className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition shadow disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Upload className="w-4 h-4" /> Upload & Parse
+              <Upload className="w-4 h-4" /> Upload Document
             </button>
           )}
           {!isUploading && (
@@ -275,5 +278,35 @@ export default function UploadDocsModule() {
         )}
       </div>
     </div>
+
+      {/* Uploaded Documents List */}
+      {uploadedDocs.length > 0 && (
+        <div className="bg-card rounded-xl p-6 shadow space-y-3">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-primary" />
+            Uploaded Documents
+          </h3>
+          <ul className="divide-y divide-border">
+            {uploadedDocs.map((doc, i) => {
+              const d = doc.date;
+              const day = String(d.getDate()).padStart(2, '0');
+              const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+              const year = String(d.getFullYear());
+              const dateStr = day + month + year;
+              const rawName = doc.fileName.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+              return (
+                <li key={i} className="py-2.5 flex items-center gap-2 text-sm">
+                  <FileUp className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <span className="font-medium">{doc.supplierName}</span>
+                  <span className="text-muted-foreground">,</span>
+                  <span className="text-muted-foreground">{rawName}</span>
+                  <span className="text-muted-foreground">,</span>
+                  <span className="text-muted-foreground">{dateStr}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
   );
 }
