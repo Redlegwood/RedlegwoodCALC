@@ -27,6 +27,8 @@ interface HistoryEntry {
   milling: string;
   pricePerBf: string;
   millingCostPerBf: string;
+  species: string;
+  supplier: string;
   boardFeet: number;
   totalCost: number;
   timestamp: string;
@@ -42,6 +44,8 @@ export default function CalculatorModule() {
   const [milling, setMilling] = useState('S3S');
   const [pricePerBf, setPricePerBf] = useState('');
   const [millingCostPerBf, setMillingCostPerBf] = useState('.50');
+  const [species, setSpecies] = useState('');
+  const [supplier, setSupplier] = useState('');
   const [result, setResult] = useState<{ boardFeet: number; totalCost: number } | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
@@ -88,6 +92,8 @@ export default function CalculatorModule() {
         milling,
         pricePerBf: pricePerBf || '0.00',
         millingCostPerBf,
+        species,
+        supplier,
         boardFeet: calcResult.boardFeet,
         totalCost: calcResult.totalCost,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -105,6 +111,8 @@ export default function CalculatorModule() {
     setMilling('S3S');
     setPricePerBf('0.00');
     setMillingCostPerBf('.50');
+    setSpecies('');
+    setSupplier('');
     setResult(null);
   };
 
@@ -295,6 +303,41 @@ export default function CalculatorModule() {
         </div>
       </div>
 
+      {/* Optional Information */}
+      <div className="bg-card rounded-xl p-6 shadow border border-border space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Optional Information</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">Saved with each calculation for reference in history.</p>
+        </div>
+        <div className="border-t border-border" />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Species */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Species</label>
+            <input
+              type="text"
+              value={species}
+              onChange={(e) => setSpecies(e.target.value)}
+              placeholder="e.g. White Oak, Walnut, Cherry"
+              className="w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none"
+            />
+          </div>
+
+          {/* Supplier */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Supplier</label>
+            <input
+              type="text"
+              value={supplier}
+              onChange={(e) => setSupplier(e.target.value)}
+              placeholder="e.g. Woodcraft, local mill"
+              className="w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Results */}
       {result && (
         <div className="bg-card rounded-xl p-6 shadow border border-border space-y-4">
@@ -345,18 +388,24 @@ export default function CalculatorModule() {
             {history.map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-center justify-between bg-background rounded-lg px-4 py-3 border border-border/50"
+                className="flex items-start justify-between bg-background rounded-lg px-4 py-3 border border-border/50"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-medium bg-accent text-accent-foreground px-2 py-0.5 rounded capitalize">
                       {entry.mode}
                     </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {entry.thickness} · {entry.width}" wide · {entry.length}' long · qty {entry.quantity}
-                    </span>
+                    {entry.species && (
+                      <span className="text-xs font-semibold text-foreground">{entry.species}</span>
+                    )}
+                    {entry.supplier && (
+                      <span className="text-xs text-muted-foreground">via {entry.supplier}</span>
+                    )}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
+                  <div className="text-sm font-medium text-foreground mt-1">
+                    {entry.thickness} · {entry.width}" wide · {entry.length}' long · QTY {entry.quantity}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
                     {entry.milling} · {entry.wastePercent}% waste · ${entry.pricePerBf}/BF · ${entry.millingCostPerBf} milling
                   </div>
                 </div>
