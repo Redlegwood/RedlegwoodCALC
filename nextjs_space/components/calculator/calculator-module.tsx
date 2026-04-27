@@ -72,7 +72,7 @@ export default function CalculatorModule() {
     setQuantity('1');
     setWastePercent('25');
     setMilling('S3S');
-    setPricePerBf('');
+    setPricePerBf('0.00');
     setMillingCostPerBf('.50');
     setResult(null);
   };
@@ -231,13 +231,25 @@ export default function CalculatorModule() {
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={pricePerBf}
-                onChange={(e) => setPricePerBf(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                    setPricePerBf(val);
+                  }
+                }}
+                onBlur={() => {
+                  const num = parseFloat(pricePerBf);
+                  if (!isNaN(num)) {
+                    setPricePerBf(num.toFixed(2));
+                  } else if (pricePerBf === '') {
+                    setPricePerBf('0.00');
+                  }
+                }}
                 placeholder="0.00"
-                step="0.01"
-                min="0"
-                className="w-full bg-gray-100 rounded-xl pl-6 pr-3 py-3 text-sm text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B6534] border-none placeholder-gray-400"
+                className="w-full bg-gray-100 rounded-xl pl-6 pr-3 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#8B6534] border-none"
               />
             </div>
           </div>
