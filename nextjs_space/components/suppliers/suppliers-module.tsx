@@ -174,7 +174,7 @@ export default function SuppliersModule() {
 
           <div className="flex gap-4 text-sm">
             <div className="bg-background rounded-lg px-4 py-2">
-              <span className="text-muted-foreground">Tax Rate:</span> {((selectedSupplier?.taxRate ?? 0) * 100)?.toFixed?.(1) ?? '0.0'}%
+              <span className="text-muted-foreground">Tax Rate:</span> {(selectedSupplier?.taxRate ?? 0)?.toFixed?.(2) ?? '0.00'}%
             </div>
             <div className="bg-background rounded-lg px-4 py-2">
               <span className="text-muted-foreground">Tax Exempt:</span> {selectedSupplier?.taxExempt ? 'Yes' : 'No'}
@@ -275,7 +275,7 @@ export default function SuppliersModule() {
                 {s?.email && <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {s.email}</div>}
               </div>
               <div className="mt-3 flex gap-2 text-xs">
-                <span className="bg-background px-2 py-0.5 rounded">Tax: {((s?.taxRate ?? 0) * 100)?.toFixed?.(1)}%</span>
+                <span className="bg-background px-2 py-0.5 rounded">Tax: {(s?.taxRate ?? 0)?.toFixed?.(2)}%</span>
                 {s?.taxExempt && <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Exempt</span>}
                 {(s?.deliveryFee ?? 0) > 0 && <span className="bg-background px-2 py-0.5 rounded">Delivery: ${(s?.deliveryFee ?? 0)?.toFixed?.(2)}</span>}
               </div>
