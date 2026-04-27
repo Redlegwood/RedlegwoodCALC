@@ -90,3 +90,17 @@ INSERT INTO "settings" ("key", "value") VALUES
     ('dark_mode', 'true'),
     ('default_supplier_id', '')
 ON CONFLICT ("key") DO NOTHING;
+
+-- uploaded_documents table
+CREATE TABLE IF NOT EXISTS "uploaded_documents" (
+    "id"            SERIAL PRIMARY KEY,
+    "supplier_id"   INTEGER NOT NULL REFERENCES "suppliers"("id") ON DELETE CASCADE,
+    "supplier_name" TEXT NOT NULL DEFAULT '',
+    "file_name"     TEXT NOT NULL DEFAULT '',
+    "uploaded_at"   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "inserted"      INTEGER NOT NULL DEFAULT 0,
+    "updated"       INTEGER NOT NULL DEFAULT 0,
+    "total"         INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS "uploaded_documents_supplier_id_idx" ON "uploaded_documents"("supplier_id");
