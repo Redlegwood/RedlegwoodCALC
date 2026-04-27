@@ -51,11 +51,12 @@ export default function CalculatorModule() {
       return;
     }
 
-    // Board foot formula: (Thickness_quarters/4 × Width_in × Length_ft × 12 × Quantity) / 12
-    // Length is in feet, width in inches
-    const boardFeet = ((tq / 4) * w * (l * 12) * qty) / 12;
+    // Board foot formula: (Thickness_inches × Width_inches × Length_feet) ÷ 12
+    // Thickness converts quarters to inches: 4/4=1", 5/4=1.25", 6/4=1.5", 8/4=2", etc.
+    const thicknessInches = tq / 4;
+    const boardFeetPerBoard = (thicknessInches * w * l) / 12;
+    const boardFeet = boardFeetPerBoard * qty;
     const boardFeetWithWaste = boardFeet * (1 + waste / 100);
-    const totalCost = boardFeetWithWaste * (price + millingCost);
 
     setResult({
       boardFeet: Math.round(boardFeetWithWaste * 100) / 100,
