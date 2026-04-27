@@ -23,6 +23,7 @@ model Supplier {
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
   priceSheets  PriceSheet[]
+  uploadedDocuments UploadedDocument[]
 
   @@map("suppliers")
 }
@@ -75,4 +76,18 @@ model Setting {
   value String
 
   @@map("settings")
+}
+
+model UploadedDocument {
+  id           Int      @id @default(autoincrement())
+  supplierId   Int      @map("supplier_id")
+  supplierName String   @map("supplier_name")
+  fileName     String   @map("file_name")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+  inserted     Int      @default(0)
+  updated      Int      @default(0)
+  total        Int      @default(0)
+  supplier     Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@map("uploaded_documents")
 }
