@@ -332,12 +332,12 @@ function SupplierFormModal({ formData, setFormData, onSave, onClose, isEdit }: {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Tax Rate</label>
-              <input type="number" value={formData?.taxRate ?? '0'} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...(formData ?? {}), taxRate: e?.target?.value ?? '0' })} step="0.01" min="0" className="w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none" />
+              <label className="block text-sm font-medium mb-1">Tax Rate (%)</label>
+              <div className="relative"><input type="number" value={formData?.taxRate ?? '0'} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...(formData ?? {}), taxRate: e?.target?.value ?? '0' })} step="0.01" min="0" className="w-full bg-background border border-input rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-ring focus:outline-none" /><span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">%</span></div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Delivery Fee ($)</label>
-              <input type="number" value={formData?.deliveryFee ?? '0'} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...(formData ?? {}), deliveryFee: e?.target?.value ?? '0' })} step="0.01" min="0" className="w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none" />
+              <div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">$</span><input type="number" value={formData?.deliveryFee ?? '0'} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...(formData ?? {}), deliveryFee: e?.target?.value ?? '0' })} step="0.01" min="0" className="w-full bg-background border border-input rounded-lg pl-7 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none" /></div>
             </div>
             <div className="flex items-end">
               <label className="flex items-center gap-2 cursor-pointer px-3 py-2">
