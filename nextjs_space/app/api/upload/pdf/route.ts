@@ -319,6 +319,18 @@ Ensure ALL entries from the PDF are included.`,
       }
     }
 
+    // Save upload record to database
+    await prisma.uploadedDocument.create({
+      data: {
+        supplierId,
+        supplierName: supplier?.name ?? 'Unknown Supplier',
+        fileName: file?.name ?? 'document.pdf',
+        inserted,
+        updated,
+        total: parsedEntries?.length ?? 0,
+      },
+    }).catch((err: any) => console.error('Failed to save upload record:', err));
+
     return NextResponse.json({
       success: true,
       inserted,
