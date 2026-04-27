@@ -19,7 +19,7 @@ export default function UploadDocsModule() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ inserted: number; updated: number; removed: number; total: number } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
-  const [uploadedDocs, setUploadedDocs] = useState<Array<{supplierName: string; fileName: string; date: Date}>>([]);
+  const [uploadedDocs, setUploadedDocs] = useState<Array<{id: number; supplierName: string; fileName: string; uploadedAt: string; inserted: number; updated: number; total: number}>>([]);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -28,7 +28,20 @@ export default function UploadDocsModule() {
     fetch('/api/suppliers').then((r: Response) => r?.json?.()).then((d: any) => {
       setSuppliers(Array.isArray(d) ? d : []);
     }).catch((e: any) => console.error(e));
-  }, []);
+  
+    fetchDocuments();}, []);
+
+  const fetchDocuments = async () => {
+    try {
+      const res = await fetch('/api/upload/documents');
+      if (res.ok) {
+        const data = await res.json();
+        setUploadedDocs(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch uploaded documents:', err);
+    }
+  };
 
   const resetForm = useCallback(() => {
     setFile(null);
@@ -125,8 +138,7 @@ export default function UploadDocsModule() {
         total: data?.total ?? 0,
       });
       setUploadState('success');
-      const uploadedSupplierName = suppliers.find(s => String(s.id) === String(selectedSupplierId))?.name ?? 'Unknown Supplier';
-      setUploadedDocs(prev => [...prev, { supplierName: uploadedSupplierName, fileName: file?.name ?? '', date: new Date() }]);
+      await fetchDocuments();;
       toast.success(`Price sheet saved — ${data?.total ?? 0} items imported`);
 
       setTimeout(() => {
@@ -287,15 +299,15 @@ export default function UploadDocsModule() {
             Uploaded Documents
           </h3>
           <ul className="divide-y divide-border">
-            {uploadedDocs.map((doc, i) => {
-              const d = doc.date;
+            {{uploadedDocs.map((doc, i) => {
+              const d = new Date(doc.uploadedAt);
               const day = String(d.getDate()).padStart(2, '0');
               const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
               const year = String(d.getFullYear());
               const dateStr = day + month + year;
               const rawName = doc.fileName.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
               return (
-                <li key={i} className="py-2.5 flex items-center gap-2 text-sm">
+                <li key={doc.id} className="py-2.5 flex items-center gap-2 text-sm">
                   <FileUp className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   <span className="font-medium">{doc.supplierName}</span>
                   <span className="text-muted-foreground">,</span>
