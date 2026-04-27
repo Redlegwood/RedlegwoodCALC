@@ -289,7 +289,6 @@ export default function UploadDocsModule() {
           </div>
         )}
       </div>
-    </div>
 
       {/* Uploaded Documents List */}
       {uploadedDocs.length > 0 && (
@@ -320,5 +319,6 @@ export default function UploadDocsModule() {
           </ul>
         </div>
       )}
+    </div>
   );
 }
