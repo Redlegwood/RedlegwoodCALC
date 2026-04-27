@@ -57,6 +57,7 @@ export default function CalculatorModule() {
     const boardFeetPerBoard = (thicknessInches * w * l) / 12;
     const boardFeet = boardFeetPerBoard * qty;
     const boardFeetWithWaste = boardFeet * (1 + waste / 100);
+    const totalCost = boardFeetWithWaste * (price + millingCost);
 
     setResult({
       boardFeet: Math.round(boardFeetWithWaste * 100) / 100,
