@@ -87,6 +87,7 @@ model UploadedDocument {
   inserted     Int      @default(0)
   updated      Int      @default(0)
   total        Int      @default(0)
+  fileUrl      String?  @map("file_url")
   supplier     Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
   @@map("uploaded_documents")
