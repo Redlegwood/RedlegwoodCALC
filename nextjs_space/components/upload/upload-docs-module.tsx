@@ -20,6 +20,8 @@ export default function UploadDocsModule() {
   const [result, setResult] = useState<{ inserted: number; updated: number; removed: number; total: number } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [uploadedDocs, setUploadedDocs] = useState<Array<{id: number; supplierName: string; fileName: string; uploadedAt: string; inserted: number; updated: number; total: number}>>([]);
+  const [showNewSupplier, setShowNewSupplier] = useState(false);
+  const [newSupplierName, setNewSupplierName] = useState('');
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -51,6 +53,27 @@ export default function UploadDocsModule() {
     setErrorMsg('');
     if (fileInputRef?.current) fileInputRef.current.value = '';
   }, []);
+
+  const handleAddSupplier = async () => {
+    const name = newSupplierName.trim();
+    if (!name) return;
+    try {
+      const res = await fetch('/api/suppliers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) throw new Error('Failed to create supplier');
+      const created = await res.json();
+      setSuppliers((prev: Supplier[]) => [...(prev ?? []), created]);
+      setSelectedSupplierId(String(created?.id ?? ''));
+      setNewSupplierName('');
+      setShowNewSupplier(false);
+      toast.success(`Supplier "${name}" added`);
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Failed to add supplier');
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e?.target?.files?.[0] ?? null;
@@ -182,7 +205,11 @@ export default function UploadDocsModule() {
           <label className="block text-sm font-medium mb-1">Supplier *</label>
           <select
             value={selectedSupplierId}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedSupplierId(e?.target?.value ?? '')}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              const val = e?.target?.value ?? '';
+              if (val === '__add_new__') { setShowNewSupplier(true); setSelectedSupplierId(''); }
+              else { setSelectedSupplierId(val); setShowNewSupplier(false); }
+            }}
             className="w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none"
             disabled={isUploading}
           >
@@ -190,7 +217,23 @@ export default function UploadDocsModule() {
             {(suppliers ?? []).map((s: Supplier) => (
               <option key={s?.id} value={String(s?.id)}>{s?.name ?? ''}</option>
             ))}
+              <option value="__add_new__">+ Add new supplier</option>
           </select>
+          {showNewSupplier && (
+            <div className="flex gap-2 mt-2">
+              <input
+                type="text"
+                value={newSupplierName}
+                onChange={(e) => setNewSupplierName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddSupplier()}
+                placeholder="New supplier name..."
+                className="flex-1 bg-background border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none"
+                autoFocus
+              />
+              <button onClick={handleAddSupplier} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition">Add</button>
+              <button onClick={() => { setShowNewSupplier(false); setNewSupplierName(''); }} className="px-3 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition">Cancel</button>
+            </div>
+          )}
         </div>
 
         {/* Drop zone */}
