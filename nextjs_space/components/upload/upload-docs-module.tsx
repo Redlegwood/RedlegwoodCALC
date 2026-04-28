@@ -17,7 +17,7 @@ export default function UploadDocsModule() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadState, setUploadState] = useState<UploadState>('idle');
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<{ inserted: number; updated: number; removed: number; total: number; fileUrl: string | null } | null>(null);
+  const [result, setResult] = useState<{ fileUrl: string; fileName: string } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [uploadedDocs, setUploadedDocs] = useState<Array<{id: number; supplierName: string; fileName: string; uploadedAt: string; inserted: number; updated: number; total: number; fileUrl?: string | null}>>([]);
   const [showNewSupplier, setShowNewSupplier] = useState(false);
@@ -155,15 +155,12 @@ export default function UploadDocsModule() {
 
       const data = await res.json();
       setResult({
-        inserted: data?.inserted ?? 0,
-        updated: data?.updated ?? 0,
-        removed: data?.removed ?? 0,
-        total: data?.total ?? 0,
-        fileUrl: data?.fileUrl ?? null,
+        fileUrl: data?.fileUrl ?? '',
+        fileName: data?.fileName ?? '',
       });
       setUploadState('success');
       await fetchDocuments();;
-      toast.success(`Price sheet saved — ${data?.total ?? 0} items imported`);
+      toast.success('Document uploaded successfully');
 
       setTimeout(() => {
         resetForm();
@@ -271,7 +268,7 @@ export default function UploadDocsModule() {
         {isUploading && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Parsing price sheet...</span>
+              <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Uploading document...</span>
               <span>{Math.round(progress ?? 0)}%</span>
             </div>
             <div className="w-full bg-background rounded-full h-2">
