@@ -159,6 +159,7 @@ export default function UploadDocsModule() {
         updated: data?.updated ?? 0,
         removed: data?.removed ?? 0,
         total: data?.total ?? 0,
+        fileUrl: data?.fileUrl ?? null,
       });
       setUploadState('success');
       await fetchDocuments();;
