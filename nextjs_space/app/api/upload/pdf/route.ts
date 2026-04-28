@@ -201,7 +201,7 @@ Ensure ALL entries from the PDF are included.`,
           },
         ],
         response_format: { type: 'json_object' },
-        max_tokens: 16000,
+                max_tokens: file.size < 200 * 1024 ? 4000 : file.size < 1024 * 1024 ? 8000 : 16000,
         temperature: 0,
       }),
     });
