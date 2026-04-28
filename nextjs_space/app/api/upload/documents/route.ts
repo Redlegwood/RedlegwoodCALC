@@ -16,6 +16,7 @@ export async function GET() {
         inserted: true,
         updated: true,
         total: true,
+        fileUrl: true,
       },
     });
 
