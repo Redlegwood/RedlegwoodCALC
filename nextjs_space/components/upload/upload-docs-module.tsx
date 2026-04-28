@@ -298,7 +298,7 @@ export default function UploadDocsModule() {
             Uploaded Documents
           </h3>
           <ul className="divide-y divide-border">
-            {{uploadedDocs.map((doc, i) => {
+            {uploadedDocs.map((doc, i) => {
               const d = new Date(doc.uploadedAt);
               const day = String(d.getDate()).padStart(2, '0');
               const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
