@@ -19,7 +19,7 @@ export default function UploadDocsModule() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ inserted: number; updated: number; removed: number; total: number; fileUrl: string | null } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
-  const [uploadedDocs, setUploadedDocs] = useState<Array<{id: number; supplierName: string; fileName: string; uploadedAt: string; inserted: number; updated: number; total: number}>>([]);
+  const [uploadedDocs, setUploadedDocs] = useState<Array<{id: number; supplierName: string; fileName: string; uploadedAt: string; inserted: number; updated: number; total: number; fileUrl?: string | null}>>([]);
   const [showNewSupplier, setShowNewSupplier] = useState(false);
   const [newSupplierName, setNewSupplierName] = useState('');
   const abortRef = useRef<AbortController | null>(null);
