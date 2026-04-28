@@ -17,7 +17,7 @@ export default function UploadDocsModule() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadState, setUploadState] = useState<UploadState>('idle');
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<{ inserted: number; updated: number; removed: number; total: number } | null>(null);
+  const [result, setResult] = useState<{ inserted: number; updated: number; removed: number; total: number; fileUrl: string | null } | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [uploadedDocs, setUploadedDocs] = useState<Array<{id: number; supplierName: string; fileName: string; uploadedAt: string; inserted: number; updated: number; total: number}>>([]);
   const [showNewSupplier, setShowNewSupplier] = useState(false);
@@ -351,9 +351,17 @@ export default function UploadDocsModule() {
               return (
                 <li key={doc.id} className="py-2.5 flex items-center gap-2 text-sm">
                   <FileUp className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  <span className="font-medium">{doc.supplierName}</span>
+                  {doc.fileUrl ? (
+                    <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">{doc.supplierName}</a>
+                  ) : (
+                    <span className="font-medium">{doc.supplierName}</span>
+                  )}
                   <span className="text-muted-foreground">,</span>
-                  <span className="text-muted-foreground">{rawName}</span>
+                  {doc.fileUrl ? (
+                    <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary hover:underline">{rawName}</a>
+                  ) : (
+                    <span className="text-muted-foreground">{rawName}</span>
+                  )}
                   <span className="text-muted-foreground">,</span>
                   <span className="text-muted-foreground">{dateStr}</span>
                 </li>
