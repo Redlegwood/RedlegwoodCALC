@@ -104,3 +104,6 @@ CREATE TABLE IF NOT EXISTS "uploaded_documents" (
 );
 
 CREATE INDEX IF NOT EXISTS "uploaded_documents_supplier_id_idx" ON "uploaded_documents"("supplier_id");
+
+-- Add file_url column for PDF storage links
+ALTER TABLE uploaded_documents ADD COLUMN IF NOT EXISTS file_url TEXT;
