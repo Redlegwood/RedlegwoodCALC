@@ -142,6 +142,34 @@ export async function POST(request: NextRequest) {
     const buffer = await file.arrayBuffer();
     const base64String = Buffer.from(buffer).toString('base64');
 
+
+    // Upload PDF to Supabase Storage before parsing
+    let fileUrl: string | null = null;
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && supabaseKey) {
+        const fileBuffer = await file.arrayBuffer();
+        const safeFileName = `${supplierId}/${Date.now()}-${(file?.name ?? 'document.pdf').replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const storageResp = await fetch(`${supabaseUrl}/storage/v1/object/price-sheets/${safeFileName}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/pdf',
+            'x-upsert': 'true',
+          },
+          body: fileBuffer,
+        });
+        if (storageResp.ok) {
+          fileUrl = `${supabaseUrl}/storage/v1/object/public/price-sheets/${safeFileName}`;
+        } else {
+          console.warn('Supabase storage upload failed:', await storageResp.text());
+        }
+      }
+    } catch (storageErr) {
+      console.warn('File storage error (non-fatal):', storageErr);
+    }
+
     // Send to LLM for parsing
     const apiKey = process.env.ABACUSAI_API_KEY;
     if (!apiKey) {
@@ -327,6 +355,7 @@ Ensure ALL entries from the PDF are included.`,
         inserted,
         updated,
         total: parsedEntries?.length ?? 0,
+        ...(fileUrl ? { fileUrl } : {}),
       },
     }).catch((err: any) => console.error('Failed to save upload record:', err));
 
