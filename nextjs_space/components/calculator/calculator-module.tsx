@@ -27,6 +27,7 @@ const WOOD_DIMENSION_OPTIONS = [
 interface SavedSupplier {
   id: number;
   name: string;
+  taxRate: number;
 }
 
 interface HistoryEntry {
@@ -194,13 +195,14 @@ export default function CalculatorModule() {
 
   // History
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [taxRate, setTaxRate] = useState(0);
 
   // Load saved suppliers on mount
   const loadSuppliers = useCallback(async () => {
     try {
       const res = await fetch('/api/suppliers');
       const data = await res.json();
-      setSavedSuppliers(Array.isArray(data) ? data.map((s: any) => ({ id: s.id, name: s.name })) : []);
+      setSavedSuppliers(Array.isArray(data) ? data.map((s: any) => ({ id: s.id, name: s.name, taxRate: s.taxRate ?? 0 })) : []);
     } catch {
       // silently fail — supplier dropdown will just be empty
     }
@@ -432,13 +434,29 @@ export default function CalculatorModule() {
             <SupplierSelect
               suppliers={savedSuppliers}
               value={supplier}
-              onChange={setSupplier}
+              onChange={(name) => {
+                setSupplier(name);
+                const found = savedSuppliers.find((s) => s.name === name);
+                setTaxRate(found ? (found.taxRate ?? 0) : 0);
+              }}
               onSaved={handleNewSupplierSaved}
               inputCls={inputCls}
             />
           </div>
         </div>
       </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Tax Rate (%)</label>
+            <input
+              type="number"
+              value={taxRate}
+              onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              className={inputCls}
+            />
+          </div>
 
       {/* ── RESULTS ──────────────────────────────────────────────────────── */}
       {mode === 'roughstock' && rsResult && (
@@ -451,9 +469,21 @@ export default function CalculatorModule() {
               <div className="text-2xl font-bold text-foreground">{rsResult.boardFeet}</div>
             </div>
             <div className="bg-muted rounded-lg p-4 text-center">
-              <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Total Cost</div>
+              <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Subtotal</div>
               <div className="text-2xl font-bold text-primary">${rsResult.totalCost.toFixed(2)}</div>
             </div>
+            {taxRate > 0 && (
+              <>
+                <div className="bg-muted rounded-lg p-4 text-center">
+                  <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Tax ({taxRate}%)</div>
+                  <div className="text-2xl font-bold text-foreground">${(rsResult.totalCost * taxRate / 100).toFixed(2)}</div>
+                </div>
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-center">
+                  <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Total w/ Tax</div>
+                  <div className="text-2xl font-bold text-primary">${(rsResult.totalCost * (1 + taxRate / 100)).toFixed(2)}</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -468,9 +498,21 @@ export default function CalculatorModule() {
               <div className="text-2xl font-bold text-foreground">{dimResult.linearFeet}</div>
             </div>
             <div className="bg-muted rounded-lg p-4 text-center">
-              <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Total Price</div>
+              <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Subtotal</div>
               <div className="text-2xl font-bold text-primary">${dimResult.totalCost.toFixed(2)}</div>
             </div>
+            {taxRate > 0 && (
+              <>
+                <div className="bg-muted rounded-lg p-4 text-center">
+                  <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Tax ({taxRate}%)</div>
+                  <div className="text-2xl font-bold text-foreground">${(dimResult.totalCost * taxRate / 100).toFixed(2)}</div>
+                </div>
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-center">
+                  <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Total w/ Tax</div>
+                  <div className="text-2xl font-bold text-primary">${(dimResult.totalCost * (1 + taxRate / 100)).toFixed(2)}</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -518,7 +560,7 @@ export default function CalculatorModule() {
                     <div className="text-sm font-medium text-foreground mt-1">
                       {entry.woodDimension} · {entry.length}' long · QTY {entry.quantity} · ${entry.dimPricePerLf}/LF
                     </div>
-                  )}
+                  )}h
                 </div>
                 <div className="text-right ml-4 shrink-0">
                   {entry.mode === 'roughstock' && <div className="text-sm font-bold text-foreground">{entry.boardFeet} BF</div>}
