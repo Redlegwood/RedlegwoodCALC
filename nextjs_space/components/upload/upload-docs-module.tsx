@@ -195,7 +195,7 @@ export default function UploadDocsModule() {
         <Upload className="w-6 h-6 text-primary" />
         <h2 className="text-2xl font-bold">Upload Docs</h2>
       </div>
-      <p className="text-muted-foreground">Upload a PDF price sheet to import lumber pricing for a supplier. The system will parse and store all pricing data.</p>
+      <p className="text-muted-foreground">Upload supplier price sheet.</p>
 
       <div className="bg-card rounded-xl p-6 shadow space-y-4">
         {/* Supplier selector */}
