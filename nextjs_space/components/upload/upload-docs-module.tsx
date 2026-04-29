@@ -1,7 +1,6 @@
 'use client';
-
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Upload, FileUp, CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { Upload, FileUp, CheckCircle, XCircle, Loader2, AlertTriangle, Trash2, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface Supplier {
@@ -22,15 +21,17 @@ export default function UploadDocsModule() {
   const [uploadedDocs, setUploadedDocs] = useState<Array<{id: number; supplierName: string; fileName: string; uploadedAt: string; inserted: number; updated: number; total: number; fileUrl?: string | null}>>([]);
   const [showNewSupplier, setShowNewSupplier] = useState(false);
   const [newSupplierName, setNewSupplierName] = useState('');
+  const [replacingDocId, setReplacingDocId] = useState<number | null>(null);
+  const [deletingDocId, setDeletingDocId] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const replaceInputRef = useRef<HTMLInputElement | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetch('/api/suppliers').then((r: Response) => r?.json?.()).then((d: any) => {
       setSuppliers(Array.isArray(d) ? d : []);
     }).catch((e: any) => console.error(e));
-  
     fetchDocuments();}, []);
 
   const fetchDocuments = async () => {
@@ -108,15 +109,12 @@ export default function UploadDocsModule() {
       toast.error('Please select a PDF file');
       return;
     }
-
     setUploadState('uploading');
     setProgress(10);
     setResult(null);
     setErrorMsg('');
-
     const controller = new AbortController();
     abortRef.current = controller;
-
     // Timeout after 45 seconds
     timeoutRef.current = setTimeout(() => {
       controller?.abort?.();
@@ -124,7 +122,6 @@ export default function UploadDocsModule() {
       setErrorMsg('Upload timed out — please retry');
       toast.error('Upload timed out — please retry');
     }, 45000);
-
     // Simulate progress
     const progressInterval = setInterval(() => {
       setProgress((prev: number) => {
@@ -132,27 +129,22 @@ export default function UploadDocsModule() {
         return (prev ?? 0) + Math.random() * 15;
       });
     }, 500);
-
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('supplier_id', selectedSupplierId);
-
       const res = await fetch('/api/upload/pdf', {
         method: 'POST',
         body: formData,
         signal: controller.signal,
       });
-
       clearInterval(progressInterval);
       if (timeoutRef?.current) clearTimeout(timeoutRef.current);
       setProgress(100);
-
       if (!res?.ok) {
         const errData = await res?.json?.().catch(() => ({}));
         throw new Error(errData?.error ?? 'Upload failed');
       }
-
       const data = await res.json();
       setResult({
         fileUrl: data?.fileUrl ?? '',
@@ -161,20 +153,17 @@ export default function UploadDocsModule() {
       setUploadState('success');
       await fetchDocuments();;
       toast.success('Document uploaded successfully');
-
       setTimeout(() => {
         resetForm();
       }, 3000);
     } catch (err: any) {
       clearInterval(progressInterval);
       if (timeoutRef?.current) clearTimeout(timeoutRef.current);
-
       if (err?.name === 'AbortError') {
         setUploadState('idle');
         setProgress(0);
         return;
       }
-
       setUploadState('error');
       setErrorMsg(err?.message ?? 'Upload failed');
       toast.error(err?.message ?? 'Upload failed');
@@ -187,6 +176,62 @@ export default function UploadDocsModule() {
     resetForm();
   };
 
+  const handleReplaceClick = (docId: number) => {
+    setReplacingDocId(docId);
+    if (replaceInputRef?.current) {
+      replaceInputRef.current.value = '';
+      replaceInputRef.current.click();
+    }
+  };
+
+  const handleReplaceFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e?.target?.files?.[0] ?? null;
+    if (!f || !replacingDocId) return;
+    if (f.type !== 'application/pdf') {
+      toast.error('Only PDF files are accepted');
+      setReplacingDocId(null);
+      return;
+    }
+    try {
+      toast.loading('Replacing document...', { id: 'replace' });
+      const formData = new FormData();
+      formData.append('file', f);
+      formData.append('doc_id', String(replacingDocId));
+      const res = await fetch('/api/upload/pdf', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error ?? 'Replace failed');
+      }
+      await fetchDocuments();
+      toast.success('Document replaced successfully', { id: 'replace' });
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Replace failed', { id: 'replace' });
+    } finally {
+      setReplacingDocId(null);
+    }
+  };
+
+  const handleDelete = async (docId: number) => {
+    if (!confirm('Delete this document? This cannot be undone.')) return;
+    setDeletingDocId(docId);
+    try {
+      const res = await fetch(`/api/upload/documents/${docId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error ?? 'Delete failed');
+      }
+      setUploadedDocs((prev) => prev.filter((d) => d.id !== docId));
+      toast.success('Document deleted');
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Delete failed');
+    } finally {
+      setDeletingDocId(null);
+    }
+  };
+
   const isUploading = uploadState === 'uploading';
 
   return (
@@ -196,7 +241,6 @@ export default function UploadDocsModule() {
         <h2 className="text-2xl font-bold">Upload Docs</h2>
       </div>
       <p className="text-muted-foreground">Upload supplier price sheet.</p>
-
       <div className="bg-card rounded-xl p-6 shadow space-y-4">
         {/* Supplier selector */}
         <div>
@@ -205,8 +249,13 @@ export default function UploadDocsModule() {
             value={selectedSupplierId}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               const val = e?.target?.value ?? '';
-              if (val === '__add_new__') { setShowNewSupplier(true); setSelectedSupplierId(''); }
-              else { setSelectedSupplierId(val); setShowNewSupplier(false); }
+              if (val === '__add_new__') {
+                setShowNewSupplier(true);
+                setSelectedSupplierId('');
+              } else {
+                setSelectedSupplierId(val);
+                setShowNewSupplier(false);
+              }
             }}
             className="w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none"
             disabled={isUploading}
@@ -215,7 +264,7 @@ export default function UploadDocsModule() {
             {(suppliers ?? []).map((s: Supplier) => (
               <option key={s?.id} value={String(s?.id)}>{s?.name ?? ''}</option>
             ))}
-              <option value="__add_new__">+ Add new supplier</option>
+            <option value="__add_new__">+ Add new supplier</option>
           </select>
           {showNewSupplier && (
             <div className="flex gap-2 mt-2">
@@ -233,7 +282,6 @@ export default function UploadDocsModule() {
             </div>
           )}
         </div>
-
         {/* Drop zone */}
         <div
           onDrop={handleDrop}
@@ -243,13 +291,7 @@ export default function UploadDocsModule() {
             file ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-accent/30'
           } ${isUploading ? 'pointer-events-none opacity-60' : ''}`}
         >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/pdf"
-            onChange={handleFileChange}
-            className="hidden"
-          />
+          <input ref={fileInputRef} type="file" accept="application/pdf" onChange={handleFileChange} className="hidden" />
           <FileUp className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
           {file ? (
             <div>
@@ -263,7 +305,6 @@ export default function UploadDocsModule() {
             </div>
           )}
         </div>
-
         {/* Progress bar */}
         {isUploading && (
           <div className="space-y-2">
@@ -276,7 +317,6 @@ export default function UploadDocsModule() {
             </div>
           </div>
         )}
-
         {/* Success state */}
         {uploadState === 'success' && result && (
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 flex items-start gap-3">
@@ -289,7 +329,6 @@ export default function UploadDocsModule() {
             </div>
           </div>
         )}
-
         {/* Error state */}
         {uploadState === 'error' && (
           <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-start gap-3">
@@ -300,12 +339,12 @@ export default function UploadDocsModule() {
             </div>
           </div>
         )}
-
         {/* Buttons */}
         <div className="flex gap-3">
           {isUploading ? (
             <button onClick={handleAbort} className="flex items-center gap-2 bg-destructive text-destructive-foreground px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition shadow">
-              <XCircle className="w-4 h-4" /> Abort
+              <XCircle className="w-4 h-4" />
+              Abort
             </button>
           ) : (
             <button
@@ -313,7 +352,8 @@ export default function UploadDocsModule() {
               disabled={!file || !selectedSupplierId}
               className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition shadow disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Upload className="w-4 h-4" /> Upload Document
+              <Upload className="w-4 h-4" />
+              Upload Document
             </button>
           )}
           {!isUploading && (
@@ -322,7 +362,6 @@ export default function UploadDocsModule() {
             </button>
           )}
         </div>
-
         {(suppliers ?? [])?.length === 0 && (
           <div className="flex items-center gap-2 text-sm text-amber-400 bg-amber-500/10 rounded-lg p-3">
             <AlertTriangle className="w-4 h-4" />
@@ -330,7 +369,14 @@ export default function UploadDocsModule() {
           </div>
         )}
       </div>
-
+      {/* Hidden file input for replacing documents */}
+      <input
+        ref={replaceInputRef}
+        type="file"
+        accept="application/pdf"
+        onChange={handleReplaceFileChange}
+        className="hidden"
+      />
       {/* Uploaded Documents List */}
       {uploadedDocs.length > 0 && (
         <div className="bg-card rounded-xl p-6 shadow space-y-3">
@@ -363,8 +409,22 @@ export default function UploadDocsModule() {
                   <span className="text-muted-foreground">,</span>
                   <span className="text-muted-foreground">{dateStr}</span>
                   <div className="ml-auto flex gap-2">
-                    <button onClick={() => {}} className="px-2 py-1 text-xs rounded bg-secondary text-secondary-foreground hover:opacity-80 transition">Update</button>
-                    <button onClick={() => {}} className="px-2 py-1 text-xs rounded bg-destructive text-destructive-foreground hover:opacity-80 transition">Delete</button>
+                    <button
+                      onClick={() => handleReplaceClick(doc.id)}
+                      disabled={replacingDocId === doc.id || deletingDocId === doc.id}
+                      className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-secondary text-secondary-foreground hover:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      Update
+                    </button>
+                    <button
+                      onClick={() => handleDelete(doc.id)}
+                      disabled={deletingDocId === doc.id || replacingDocId === doc.id}
+                      className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-destructive text-destructive-foreground hover:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deletingDocId === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                      Delete
+                    </button>
                   </div>
                 </li>
               );
