@@ -362,6 +362,10 @@ export default function UploadDocsModule() {
                   )}
                   <span className="text-muted-foreground">,</span>
                   <span className="text-muted-foreground">{dateStr}</span>
+                  <div className="ml-auto flex gap-2">
+                    <button onClick={() => {}} className="px-2 py-1 text-xs rounded bg-secondary text-secondary-foreground hover:opacity-80 transition">Update</button>
+                    <button onClick={() => {}} className="px-2 py-1 text-xs rounded bg-destructive text-destructive-foreground hover:opacity-80 transition">Delete</button>
+                  </div>
                 </li>
               );
             })}
