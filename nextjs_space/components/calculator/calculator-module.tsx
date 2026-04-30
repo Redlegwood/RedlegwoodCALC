@@ -443,11 +443,9 @@ export default function CalculatorModule() {
               inputCls={inputCls}
             />
           </div>
-        </div>
-      </div>
           <div>
             <label className="block text-sm font-medium mb-1">Tax Rate (%)</label>
-            <input
+              <input
               type="number"
               value={taxRate}
               onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
@@ -457,6 +455,9 @@ export default function CalculatorModule() {
               className={inputCls}
             />
           </div>
+          </div>
+      </div>
+
 
       {/* ── RESULTS ──────────────────────────────────────────────────────── */}
       {mode === 'roughstock' && rsResult && (
