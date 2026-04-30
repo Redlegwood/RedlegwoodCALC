@@ -64,7 +64,7 @@ const ACCEPTED_TYPES = ['application/pdf','application/msword','application/vnd.
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/pdf',
+          'Content-Type': file.type,
           'x-upsert': 'true',
         },
         body: fileBuffer,
