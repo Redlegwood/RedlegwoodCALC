@@ -10,7 +10,7 @@ interface Supplier {
 
 type UploadState = 'idle' | 'uploading' | 'success' | 'error' | 'aborting';
 
-export default function UploadDocsModule() {h
+export default function UploadDocsModule() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [file, setFile] = useState<File | null>(null);
