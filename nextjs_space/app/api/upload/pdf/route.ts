@@ -13,8 +13,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    if (file.type !== 'application/pdf') {
-      return NextResponse.json({ error: 'Only PDF files are accepted' }, { status: 400 });
+const ACCEPTED_TYPES = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv','image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: 'Unsupported file type. Accepted: PDF, Word, Excel, CSV, and images' }, { status: 400 });
     }
 
     if (file.size > 20 * 1024 * 1024) {
