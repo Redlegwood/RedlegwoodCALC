@@ -10,7 +10,7 @@ const THICKNESS_OPTIONS = [
   { label: '5/4', value: 5 },
   { label: '6/4', value: 6 },
   { label: '8/4', value: 8 },
-  { label: '10/4', value: 10 },h
+  { label: '10/4', value: 10 },
   { label: '12/4', value: 12 },
   { label: '16/4', value: 16 },
 ];
