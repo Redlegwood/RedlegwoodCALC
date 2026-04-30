@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 // ── Roughstock constants ─────────────────────────────────────────────────────
 const THICKNESS_OPTIONS = [
-  { label: '4/4', value: 4 },
+  { label: '4/4', value: 4 },h
   { label: '5/4', value: 5 },
   { label: '6/4', value: 6 },
   { label: '8/4', value: 8 },
@@ -329,11 +329,11 @@ export default function CalculatorModule() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Width (Inches)</label>
-              <input type="number" value={rsWidth} onChange={(e) => setRsWidth(e.target.value)} placeholder="0.00%" step="0.25" min="0" className={inputCls} />
+              <input type="number" value={rsWidth} onChange={(e) => setRsWidth(e.target.value)} onBlur={() => { const n = parseFloat(rsWidth); setRsWidth(!isNaN(n) ? n.toFixed(2) : ''); }} placeholder="0.00" step="0.01" min="0" className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Length (Feet)</label>
-              <input type="number" value={rsLength} onChange={(e) => setRsLength(e.target.value)} placeholder="0.00%" step="0.5" min="0" className={inputCls} />
+              <input type="number" value={rsLength} onChange={(e) => setRsLength(e.target.value)} onBlur={() => { const n = parseFloat(rsLength); setRsLength(!isNaN(n) ? n.toFixed(2) : ''); }} placeholder="0.00" step="0.01" min="0" className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Quantity</label>
@@ -390,7 +390,7 @@ export default function CalculatorModule() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Length (Feet)</label>
-              <input type="number" value={dimLength} onChange={(e) => setDimLength(e.target.value)} placeholder="0.00%" step="0.5" min="0" className={inputCls} />
+              <input type="number" value={dimLength} onChange={(e) => setDimLength(e.target.value)} onBlur={() => { const n = parseFloat(dimLength); setDimLength(!isNaN(n) ? n.toFixed(2) : ''); }} placeholder="0.00" step="0.01" min="0" className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Quantity</label>
