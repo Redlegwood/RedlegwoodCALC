@@ -10,7 +10,7 @@ interface Supplier {
 
 type UploadState = 'idle' | 'uploading' | 'success' | 'error' | 'aborting';
 
-export default function UploadDocsModule() {
+export default function UploadDocsModule() {h
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -78,8 +78,8 @@ export default function UploadDocsModule() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e?.target?.files?.[0] ?? null;
-    if (f && f?.type !== 'application/pdf') {
-      toast.error('Only PDF files are accepted');
+    if (f && !['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv','image/jpeg','image/png','image/gif','image/webp','image/svg+xml'].includes(f?.type ?? '')) {
+      toast.error('Unsupported file type. Please upload a PDF, Word document, spreadsheet, or image.');
       if (fileInputRef?.current) fileInputRef.current.value = '';
       return;
     }
@@ -91,8 +91,8 @@ export default function UploadDocsModule() {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e?.preventDefault?.();
     const f = e?.dataTransfer?.files?.[0] ?? null;
-    if (f && f?.type !== 'application/pdf') {
-      toast.error('Only PDF files are accepted');
+    if (f && !['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv','image/jpeg','image/png','image/gif','image/webp','image/svg+xml'].includes(f?.type ?? '')) {
+      toast.error('Unsupported file type. Please upload a PDF, Word document, spreadsheet, or image.');
       return;
     }
     setFile(f);
@@ -106,7 +106,7 @@ export default function UploadDocsModule() {
       return;
     }
     if (!file) {
-      toast.error('Please select a PDF file');
+      toast.error('Please select a file to upload');
       return;
     }
     setUploadState('uploading');
@@ -187,8 +187,8 @@ export default function UploadDocsModule() {
   const handleReplaceFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e?.target?.files?.[0] ?? null;
     if (!f || !replacingDocId) return;
-    if (f.type !== 'application/pdf') {
-      toast.error('Only PDF files are accepted');
+    if (!['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv','image/jpeg','image/png','image/gif','image/webp','image/svg+xml'].includes(f.type)) {
+      toast.error('Unsupported file type. Please upload a PDF, Word document, spreadsheet, or image.');
       setReplacingDocId(null);
       return;
     }
@@ -291,7 +291,7 @@ export default function UploadDocsModule() {
             file ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-accent/30'
           } ${isUploading ? 'pointer-events-none opacity-60' : ''}`}
         >
-          <input ref={fileInputRef} type="file" accept="application/pdf" onChange={handleFileChange} className="hidden" />
+          <input ref={fileInputRef} type="file" accept="application/pdf,.pdf,application/msword,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx,application/vnd.ms-excel,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,text/csv,.csv,image/jpeg,.jpg,.jpeg,image/png,.png,image/gif,.gif,image/webp,.webp" onChange={handleFileChange} className="hidden" />
           <FileUp className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
           {file ? (
             <div>
@@ -300,8 +300,8 @@ export default function UploadDocsModule() {
             </div>
           ) : (
             <div>
-              <p className="font-medium">Drag and drop a PDF here, or click to browse</p>
-              <p className="text-sm text-muted-foreground mt-1">Only PDF files accepted (max 20MB)</p>
+              <p className="font-medium">Drag and drop a file here, or click to browse</p>
+              <p className="text-sm text-muted-foreground mt-1">PDF, Word, Excel, CSV, or image files accepted (max 20MB)</p>
             </div>
           )}
         </div>
@@ -373,7 +373,7 @@ export default function UploadDocsModule() {
       <input
         ref={replaceInputRef}
         type="file"
-        accept="application/pdf"
+        accept="application/pdf,.pdf,application/msword,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx,application/vnd.ms-excel,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,text/csv,.csv,image/jpeg,.jpg,.jpeg,image/png,.png,image/gif,.gif,image/webp,.webp"
         onChange={handleReplaceFileChange}
         className="hidden"
       />
@@ -391,7 +391,7 @@ export default function UploadDocsModule() {
               const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
               const year = String(d.getFullYear());
               const dateStr = day + month + year;
-              const rawName = doc.fileName.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+              const rawName = doc.fileName.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
               return (
                 <li key={doc.id} className="py-2.5 flex items-center gap-2 text-sm">
                   <FileUp className="w-4 h-4 text-muted-foreground flex-shrink-0" />
