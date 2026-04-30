@@ -10,7 +10,7 @@ const THICKNESS_OPTIONS = [
   { label: '5/4', value: 5 },
   { label: '6/4', value: 6 },
   { label: '8/4', value: 8 },
-  { label: '10/4', value: 10 },
+  { label: '10/4', value: 10 },h
   { label: '12/4', value: 12 },
   { label: '16/4', value: 16 },
 ];
@@ -329,11 +329,11 @@ export default function CalculatorModule() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Width (Inches)</label>
-              <input type="number" value={rsWidth} onChange={(e) => setRsWidth(e.target.value)} placeholder="0.00" step="0.25" min="0" className={inputCls} />
+              <input type="number" value={rsWidth} onChange={(e) => setRsWidth(e.target.value)} placeholder="0.00%" step="0.25" min="0" className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Length (Feet)</label>
-              <input type="number" value={rsLength} onChange={(e) => setRsLength(e.target.value)} placeholder="0.00" step="0.5" min="0" className={inputCls} />
+              <input type="number" value={rsLength} onChange={(e) => setRsLength(e.target.value)} placeholder="0.00%" step="0.5" min="0" className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Quantity</label>
@@ -356,7 +356,7 @@ export default function CalculatorModule() {
                 <input type="text" inputMode="decimal" value={pricePerBf}
                   onChange={(e) => { const v = e.target.value; if (v === '' || /^\d*\.?\d*$/.test(v)) setPricePerBf(v); }}
                   onBlur={() => { const n = parseFloat(pricePerBf); setPricePerBf(!isNaN(n) ? n.toFixed(2) : '0.00'); }}
-                  placeholder="0.00" className={dollarInputCls} />
+                  placeholder="0.00%" className={dollarInputCls} />
               </div>
             </div>
             <div>
@@ -390,7 +390,7 @@ export default function CalculatorModule() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Length (Feet)</label>
-              <input type="number" value={dimLength} onChange={(e) => setDimLength(e.target.value)} placeholder="0.00" step="0.5" min="0" className={inputCls} />
+              <input type="number" value={dimLength} onChange={(e) => setDimLength(e.target.value)} placeholder="0.00%" step="0.5" min="0" className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Quantity</label>
@@ -403,7 +403,7 @@ export default function CalculatorModule() {
                 <input type="text" inputMode="decimal" value={dimPricePerLf}
                   onChange={(e) => { const v = e.target.value; if (v === '' || /^\d*\.?\d*$/.test(v)) setDimPricePerLf(v); }}
                   onBlur={() => { const n = parseFloat(dimPricePerLf); setDimPricePerLf(!isNaN(n) ? n.toFixed(2) : '0.00'); }}
-                  placeholder="0.00" className={dollarInputCls} />
+                  placeholder="0.00%" className={dollarInputCls} />
               </div>
             </div>
           </div>
@@ -449,7 +449,7 @@ export default function CalculatorModule() {
               type="number"
               value={taxRate}
               onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-              placeholder="0.00"
+              placeholder="0.00%"
               min="0"
               step="0.01"
               className={inputCls}
