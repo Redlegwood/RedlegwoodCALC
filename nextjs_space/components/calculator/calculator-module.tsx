@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 // ── Roughstock constants ─────────────────────────────────────────────────────
 const THICKNESS_OPTIONS = [
-  { label: '4/4', value: 4 },h
+  { label: '4/4', value: 4 },
   { label: '5/4', value: 5 },
   { label: '6/4', value: 6 },
   { label: '8/4', value: 8 },
