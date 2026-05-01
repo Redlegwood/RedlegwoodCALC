@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS "suppliers" (
     "delivery_fee" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "notes" TEXT DEFAULT '',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "suppliers_pkey" PRIMARY KEY ("id")
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS "price_sheets" (
     "thickness_quarters" INTEGER NOT NULL,
     "price_per_bf" DOUBLE PRECISION NOT NULL,
     "width_qualifier" TEXT,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "price_sheets_pkey" PRIMARY KEY ("id")
 );
 
