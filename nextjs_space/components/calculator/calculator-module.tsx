@@ -472,15 +472,15 @@ export default function CalculatorModule() {
               <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Subtotal</div>
               <div className="text-2xl font-bold text-primary">${rsResult.totalCost.toFixed(2)}</div>
             </div>
-            {taxRate > 0 && (
+            {parseFloat(taxRate) > 0 && (
               <>
                 <div className="bg-muted rounded-lg p-4 text-center">
                   <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Tax ({taxRate}%)</div>
-                  <div className="text-2xl font-bold text-foreground">${(rsResult.totalCost * taxRate / 100).toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-foreground">${(rsResult.totalCost * parseFloat(taxRate) / 100).toFixed(2)}</div>
                 </div>
                 <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-center">
                   <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Total w/ Tax</div>
-                  <div className="text-2xl font-bold text-primary">${(rsResult.totalCost * (1 + taxRate / 100)).toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-primary">${(rsResult.totalCost * (1 + parseFloat(taxRate) / 100)).toFixed(2)}</div>
                 </div>
               </>
             )}
@@ -501,15 +501,15 @@ export default function CalculatorModule() {
               <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Subtotal</div>
               <div className="text-2xl font-bold text-primary">${dimResult.totalCost.toFixed(2)}</div>
             </div>
-            {taxRate > 0 && (
+            {parseFloat(taxRate) > 0 && (
               <>
                 <div className="bg-muted rounded-lg p-4 text-center">
                   <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Tax ({taxRate}%)</div>
-                  <div className="text-2xl font-bold text-foreground">${(dimResult.totalCost * taxRate / 100).toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-foreground">${(dimResult.totalCost * parseFloat(taxRate) / 100).toFixed(2)}</div>
                 </div>
                 <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-center">
                   <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">Total w/ Tax</div>
-                  <div className="text-2xl font-bold text-primary">${(dimResult.totalCost * (1 + taxRate / 100)).toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-primary">${(dimResult.totalCost * (1 + parseFloat(taxRate) / 100)).toFixed(2)}</div>
                 </div>
               </>
             )}
