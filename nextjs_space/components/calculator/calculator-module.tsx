@@ -195,7 +195,7 @@ export default function CalculatorModule() {
 
   // History
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [taxRate, setTaxRate] = useState(0);
+  const [taxRate, setTaxRate] = useState('');
 
   // Load saved suppliers on mount
   const loadSuppliers = useCallback(async () => {
@@ -437,7 +437,7 @@ export default function CalculatorModule() {
               onChange={(name) => {
                 setSupplier(name);
                 const found = savedSuppliers.find((s) => s.name === name);
-                setTaxRate(found ? (found.taxRate ?? 0) : 0);
+                setTaxRate(found && found.taxRate != null ? Number(found.taxRate).toFixed(2) + '%' : '');
               }}
               onSaved={handleNewSupplierSaved}
               inputCls={inputCls}
@@ -446,12 +446,11 @@ export default function CalculatorModule() {
           <div>
             <label className="block text-sm font-medium mb-1">Tax Rate (%)</label>
               <input
-              type="number"
+              type="text" inputMode="decimal"
               value={taxRate}
-              onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
+              onChange={(e) => { const v = e.target.value.replace('%', ''); if (v === '' || /^\d*\.?\d*$/.test(v)) setTaxRate(v); }}
+                onBlur={() => { const v = taxRate.replace('%', ''); const n = parseFloat(v); setTaxRate(!isNaN(n) ? n.toFixed(2) + '%' : ''); }}
               placeholder="0.00%"
-              min="0"
-              step="0.01"
               className={inputCls}
             />
           </div>
