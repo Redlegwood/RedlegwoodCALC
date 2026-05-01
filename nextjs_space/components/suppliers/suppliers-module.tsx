@@ -51,7 +51,7 @@ export default function SuppliersModule() {
   const handleSelectSupplier = useCallback(async (supplier: Supplier) => {
     setSelectedSupplier(supplier);
     try {
-      const res = await fetch(`/api/suppliers/${supplier?.id}/prices`);
+              const res = await fetch(`/api/price-sheets?supplierId=${supplier?.id}`);
       const data = await res?.json?.() ?? [];
       setPrices(Array.isArray(data) ? data : []);
     } catch (e) {
