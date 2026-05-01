@@ -356,7 +356,7 @@ export default function CalculatorModule() {
                 <input type="text" inputMode="decimal" value={pricePerBf}
                   onChange={(e) => { const v = e.target.value; if (v === '' || /^\d*\.?\d*$/.test(v)) setPricePerBf(v); }}
                   onBlur={() => { const n = parseFloat(pricePerBf); setPricePerBf(!isNaN(n) ? n.toFixed(2) : '0.00'); }}
-                  placeholder="0.00%" className={dollarInputCls} />
+                  placeholder="0.00" className={dollarInputCls} />
               </div>
             </div>
             <div>
